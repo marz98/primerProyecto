@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Empleado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EmpleadoController extends Controller
 {
@@ -14,7 +15,8 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-        return view('empleado.index');
+        $datos['empleados']=Empleado::paginate(5);
+        return view('empleado.index',$datos);
     }
 
     /**
@@ -36,7 +38,15 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $datoEmpleados=request()->except('_token');//all();//obtiene toda la imformacion que enien
+        if ($request->hasFile('Foto')) {
+            $datoEmpleados['Foto']=$request->file('Foto')->store('uploads','public');
+        }
+
+        Empleado::insert($datoEmpleados);
+
+       // return response()->json($datoEmpleados);//responde con toda la informacion en un json
+    return redirect('empleado')->with('mensaje','Registro agregado con exito');
     }
 
     /**
@@ -56,9 +66,10 @@ class EmpleadoController extends Controller
      * @param  \App\Models\Empleado  $empleado
      * @return \Illuminate\Http\Response
      */
-    public function edit(Empleado $empleado)
+    public function edit($id)
     {
-        //
+        $empleado=Empleado::findOrFail($id);//para pasar la informacion al formulario editar
+        return view('empleado.edit',compact('empleado'));//esto va junto
     }
 
     /**
@@ -68,9 +79,19 @@ class EmpleadoController extends Controller
      * @param  \App\Models\Empleado  $empleado
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Empleado $empleado)
+    public function update(Request $request,  $id)
     {
-        //
+        $datoEmpleados=request()->except(['_token','_method']);//para quitar el oken
+
+        if ($request->hasFile('Foto')) {//verifica si existe esa foto
+            $empleado=Empleado::findOrFail($id);
+            Storage::delete('public/'.$empleado->foto);//con esto se borra la informacion
+            $datoEmpleados['Foto']=$request->file('Foto')->store('uploads','public');
+        }
+        Empleado::where('id','=',$id)->update($datoEmpleados);//busca la informacion que esta con el id que esta pasando y cuando lo encuentre hacer update con los datos
+        //  para regresar al formulario que me envio informacion
+        $empleado=Empleado::findOrFail($id);//para pasar la informacion al formulario editar
+        return view('empleado.edit',compact('empleado'));//esto va junto
     }
 
     /**
@@ -79,8 +100,14 @@ class EmpleadoController extends Controller
      * @param  \App\Models\Empleado  $empleado
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Empleado $empleado)
+    public function destroy($id)
     {
-        //
+        //permite borrar
+        $empleado=Empleado::findOrFail($id);//buscar la informacion
+        if (Storage::delete('public/'.$empleado->foto)) {
+            Empleado::destroy($id);
+        }
+
+       return redirect('empleado')->with('mensaje','Empleado Borrado');
     }
 }

@@ -1,18 +1,11 @@
-formulario de creacion de empleado
-<form action="" method="POST" enctype="multipart/form-data"><!-- enctype="multipart/form-data" permite enviar fotogracia-->
-<br>
-<label for="Nombre">Nombre</label>
-<input type="text" name="Nombre"id="Nombre">
-<br>
-<label for="Apellido">Apellido</label>
-<input type="text" name="Apellido" id="Apellido">
-<br>
-<label for="Correo">Correo</label>
-<input type="text" name="Correo" id="Correo" >
-<br>
-<label for="Foto">Foto</label>
-<input type="file" name="Foto" id="Foto">
-<br>
-<input type="submit" name="Enviar" id="Enviar">
-<br>
+
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+<form action="{{ url('/empleado') }}" method="POST" enctype="multipart/form-data"><!-- enctype="multipart/form-data" permite enviar fotogracia-->
+@csrf<!--imprimer una llave de seguridad-->
+@include('empleado.form',['modo'=>'Crear'])<!-- ['modo'=>'Crear'] sirve para indicar la accion que de ejecuta en el boton-->
 </form>
+</div>
+@endsection
