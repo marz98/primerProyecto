@@ -38,6 +38,20 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
+        $campos=[
+             'nombre'=>'required|string|max:100',
+             'apellido'=>'required|string|max:100',
+             'correo'=>'required| email',
+             'foto'=>'required|max:10000|miles:jpeg,png,jpg',
+
+
+        ];
+        $mensaje=[
+            'required'=> 'El :attribute es requerido',
+            'foto.required'=>'La foto es requerida',
+        ];
+        $this->validate($request,$campos,$mensaje);
+
         $datoEmpleados=request()->except('_token');//all();//obtiene toda la imformacion que enien
         if ($request->hasFile('Foto')) {
             $datoEmpleados['Foto']=$request->file('Foto')->store('uploads','public');
@@ -68,6 +82,8 @@ class EmpleadoController extends Controller
      */
     public function edit($id)
     {
+
+
         $empleado=Empleado::findOrFail($id);//para pasar la informacion al formulario editar
         return view('empleado.edit',compact('empleado'));//esto va junto
     }
@@ -81,6 +97,25 @@ class EmpleadoController extends Controller
      */
     public function update(Request $request,  $id)
     {
+        $campos=[
+            'nombre'=>'required|string|max:100',
+            'apellido'=>'required|string|max:100',
+            'correo'=>'required| email',
+
+       ];
+       $mensaje=[
+           'required'=> 'El :attribute es requerido',
+
+       ];
+
+       if ($request->hasFile('Foto')) {
+       $campos=[ 'foto'=>'required|max:10000|miles:jpeg,png,jpg'];
+       $mensaje=['foto.required'=>'La foto es requerida'];
+       }
+       $this->validate($request,$campos,$mensaje);
+
+
+
         $datoEmpleados=request()->except(['_token','_method']);//para quitar el oken
 
         if ($request->hasFile('Foto')) {//verifica si existe esa foto
@@ -91,7 +126,8 @@ class EmpleadoController extends Controller
         Empleado::where('id','=',$id)->update($datoEmpleados);//busca la informacion que esta con el id que esta pasando y cuando lo encuentre hacer update con los datos
         //  para regresar al formulario que me envio informacion
         $empleado=Empleado::findOrFail($id);//para pasar la informacion al formulario editar
-        return view('empleado.edit',compact('empleado'));//esto va junto
+       // return view('empleado.edit',compact('empleado'));//esto va junto
+       return redirect('empleado')->with('mensaje','Empleado Modificado');
     }
 
     /**

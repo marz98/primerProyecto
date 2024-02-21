@@ -2,10 +2,17 @@
 
 @section('content')
 <div class="container">
-@if (Session::has('mensaje'))<!-- si hay un mensaje lomuestra-->
+<div class="alert alert-success alert-dismissible" role="alert">
+    @if (Session::has('mensaje'))<!-- si hay un mensaje lomuestra-->
 {{ Session::get('mensaje') }}
 
 @endif
+<button type="button" class="close" data-dismiss="alert"aria-label="close">
+    <span aria-hidden="true">&times;</span>
+</button>
+</div>
+
+
 <a href="{{ url('empleado/create') }} " class="btn btn-outline-secondary">Registrar nuevo empleado</a>
 <br>
 <br>
